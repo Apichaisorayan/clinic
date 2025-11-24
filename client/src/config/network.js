@@ -7,8 +7,8 @@ export const getServerConfig = () => {
   // Production - Cloudflare Pages
   if (currentHost.includes('pages.dev') || currentHost.includes('workers.dev')) {
     return {
-      apiBase: 'https://clinic-booking-api.YOUR_SUBDOMAIN.workers.dev/api',
-      serverUrl: 'https://clinic-booking-api.YOUR_SUBDOMAIN.workers.dev'
+      apiBase: 'https://clinic-booking-api.apichailove-student.workers.dev/api',
+      serverUrl: 'https://clinic-booking-api.apichailove-student.workers.dev'
     }
   }
   
