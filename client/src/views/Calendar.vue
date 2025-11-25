@@ -368,9 +368,9 @@
 
           <!-- Week Body -->
           <div class="flex-1 overflow-y-auto">
-            <div class="grid grid-cols-8 min-h-full">
-              <!-- Time Column -->
-              <div class="border-r border-gray-200 bg-gray-50/50">
+            <div class="grid grid-cols-7 md:grid-cols-8 min-h-full">
+              <!-- Time Column (Desktop only) -->
+              <div class="hidden md:block border-r border-gray-200 bg-gray-50/50">
                 <div 
                   v-for="hour in hours" 
                   :key="hour"
