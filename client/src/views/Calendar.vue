@@ -1443,8 +1443,8 @@ const createBooking = async () => {
       throw new Error(error.error || 'Failed to create booking')
     }
     
-    const booking = await response.json()
-    bookings.value.push(booking)
+    // Refresh bookings list
+    await fetchBookings()
     
     // Reset form
     newBooking.value = {
