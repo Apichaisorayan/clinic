@@ -727,9 +727,9 @@ const handleImageUpload = async (event) => {
   const file = event.target.files[0]
   if (!file) return
 
-  // Validate file size (5MB)
-  if (file.size > 5 * 1024 * 1024) {
-    alert('ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5MB')
+  // Validate file size (10MB - เพิ่มขึ้นสำหรับมือถือ)
+  if (file.size > 10 * 1024 * 1024) {
+    alert('ไฟล์รูปภาพต้องมีขนาดไม่เกิน 10MB')
     return
   }
 
@@ -750,11 +750,14 @@ const handleImageUpload = async (event) => {
     }
     reader.readAsDataURL(file)
 
-    // Upload to server
+    // Upload to server with timeout
     const formData = new FormData()
     formData.append('image', file)
 
     const xhr = new XMLHttpRequest()
+    
+    // Set timeout (60 seconds)
+    xhr.timeout = 60000
     
     // Track upload progress
     xhr.upload.addEventListener('progress', (e) => {
@@ -765,19 +768,33 @@ const handleImageUpload = async (event) => {
 
     xhr.onload = () => {
       if (xhr.status === 200) {
-        const response = JSON.parse(xhr.responseText)
-        roomForm.value.image = response.imageUrl
-        uploadProgress.value = 100
-        setTimeout(() => {
-          uploadProgress.value = 0
-        }, 1000)
+        try {
+          const response = JSON.parse(xhr.responseText)
+          roomForm.value.image = response.imageUrl
+          uploadProgress.value = 100
+          setTimeout(() => {
+            uploadProgress.value = 0
+          }, 1000)
+          console.log('Upload success:', response.imageUrl)
+        } catch (e) {
+          throw new Error('Invalid response from server')
+        }
       } else {
-        throw new Error('Upload failed')
+        let errorMsg = 'Upload failed'
+        try {
+          const error = JSON.parse(xhr.responseText)
+          errorMsg = error.error || errorMsg
+        } catch (e) {}
+        throw new Error(errorMsg)
       }
     }
 
     xhr.onerror = () => {
-      throw new Error('Upload failed')
+      throw new Error('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบอินเทอร์เน็ต')
+    }
+
+    xhr.ontimeout = () => {
+      throw new Error('การอัปโหลดใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง')
     }
 
     xhr.open('POST', `${API_BASE}/upload/room-image`)
@@ -785,7 +802,7 @@ const handleImageUpload = async (event) => {
 
   } catch (error) {
     console.error('Upload error:', error)
-    alert('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ')
+    alert(error.message || 'เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ')
     uploadProgress.value = 0
     imagePreview.value = ''
   }
